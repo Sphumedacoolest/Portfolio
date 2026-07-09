@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator — Sphumelele Sabela</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="calculator.css">
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<nav>
+  <a href="../portfolio/sphumelele_portfolio.html" class="nav-logo">SS_dev</a>
+  <ul class="nav-links">
+    <li><a href="../portfolio/sphumelele_portfolio.html">portfolio</a></li>
+    <li><a href="calculator.html" class="active">calculator</a></li>
+    <li><a href="../pathfinding/pathfinding.html">pathfinding</a></li>
+    <li><a href="../trivia/trivia.html">trivia</a></li>
+    <li><a href="../typing/typing.html">typing</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <a href="../portfolio/sphumelele_portfolio.html" class="back-link">← back to portfolio</a>
+
+  <!-- PROJECT HEADER -->
+  <div class="project-tag">project 01</div>
+  <h1 class="project-title">Calculator<span>.</span><br>App</h1>
+  <p class="project-desc">
+    A fully functional calculator built with vanilla JavaScript. Features standard arithmetic, a scientific mode with trigonometric and logarithmic functions, keyboard input support, and a calculation history log.
+  </p>
+  <div class="project-meta">
+    <span class="meta-tag">HTML</span>
+    <span class="meta-tag">CSS</span>
+    <span class="meta-tag">JavaScript</span>
+    <span class="meta-tag">DOM Manipulation</span>
+    <span class="meta-tag">Event Handling</span>
+  </div>
+
+  <!-- SHOWCASE: CALCULATOR + CODE -->
+  <div class="showcase fade-in">
+
+    <!-- CALCULATOR -->
+    <div class="calc-wrapper">
+      <div class="calc-titlebar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span class="calc-titlebar-name">calculator.js — running</span>
+      </div>
+
+      <div class="calc-display">
+        <div class="calc-expression" id="expression"></div>
+        <div class="calc-result" id="result">0</div>
+      </div>
+
+      <div class="calc-mode">
+        <button class="mode-btn active" id="modeStd" onclick="setMode('std')">STANDARD</button>
+        <button class="mode-btn" id="modeSci" onclick="setMode('sci')">SCIENTIFIC</button>
+      </div>
+
+      <!-- Scientific buttons (hidden by default) -->
+      <div class="sci-buttons" id="sciButtons">
+        <button class="sci-btn" onclick="sciOp('sin')">sin</button>
+        <button class="sci-btn" onclick="sciOp('cos')">cos</button>
+        <button class="sci-btn" onclick="sciOp('tan')">tan</button>
+        <button class="sci-btn" onclick="sciOp('log')">log</button>
+        <button class="sci-btn" onclick="sciOp('sqrt')">√</button>
+        <button class="sci-btn" onclick="sciOp('pow2')">x²</button>
+        <button class="sci-btn" onclick="sciOp('inv')">1/x</button>
+        <button class="sci-btn" onclick="insertConst('π')">π</button>
+      </div>
+
+      <!-- Main buttons -->
+      <div class="calc-buttons" id="calcButtons">
+        <button class="calc-btn fn clear ripple-container" onclick="clearCalc(event)">AC</button>
+        <button class="calc-btn fn ripple-container" onclick="toggleSign(event)">+/−</button>
+        <button class="calc-btn fn ripple-container" onclick="percent(event)">%</button>
+        <button class="calc-btn op ripple-container" onclick="inputOp('÷', event)">÷</button>
+
+        <button class="calc-btn ripple-container" onclick="inputNum('7', event)">7</button>
+        <button class="calc-btn ripple-container" onclick="inputNum('8', event)">8</button>
+        <button class="calc-btn ripple-container" onclick="inputNum('9', event)">9</button>
+        <button class="calc-btn op ripple-container" onclick="inputOp('×', event)">×</button>
+
+        <button class="calc-btn ripple-container" onclick="inputNum('4', event)">4</button>
+        <button class="calc-btn ripple-container" onclick="inputNum('5', event)">5</button>
+        <button class="calc-btn ripple-container" onclick="inputNum('6', event)">6</button>
+        <button class="calc-btn op ripple-container" onclick="inputOp('−', event)">−</button>
+
+        <button class="calc-btn ripple-container" onclick="inputNum('1', event)">1</button>
+        <button class="calc-btn ripple-container" onclick="inputNum('2', event)">2</button>
+        <button class="calc-btn ripple-container" onclick="inputNum('3', event)">3</button>
+        <button class="calc-btn op ripple-container" onclick="inputOp('+', event)">+</button>
+
+        <button class="calc-btn zero ripple-container" onclick="inputNum('0', event)">0</button>
+        <button class="calc-btn ripple-container" onclick="inputDot(event)">.</button>
+        <button class="calc-btn eq ripple-container" onclick="calculate(event)">=</button>
+      </div>
+    </div>
+
+    <!-- CODE SNIPPETS -->
+    <div class="code-panel">
+      <div class="code-block fade-in">
+        <div class="code-block-header">
+          <span class="code-block-title">calculator.js — core logic</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Evaluate expression safely</span>
+<span class="kw">function</span> <span class="fn-name">calculate</span>() {
+  <span class="kw">let</span> expr = expression
+    .replace(<span class="str">/÷/g</span>, <span class="str">'/'</span>)
+    .replace(<span class="str">/×/g</span>, <span class="str">'*'</span>)
+    .replace(<span class="str">/−/g</span>, <span class="str">'-'</span>)
+    .replace(<span class="str">/π/g</span>, Math.PI);
+
+  <span class="kw">const</span> result = <span class="fn-name">eval</span>(expr);
+  <span class="fn-name">pushHistory</span>(expression, result);
+  <span class="kw">return</span> result;
+}</div>
+      </div>
+
+      <div class="code-block fade-in">
+        <div class="code-block-header">
+          <span class="code-block-title">calculator.js — scientific ops</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Scientific functions</span>
+<span class="kw">function</span> <span class="fn-name">sciOp</span>(op) {
+  <span class="kw">const</span> n = <span class="fn-name">parseFloat</span>(current);
+  <span class="kw">const</span> ops = {
+    sin:  () => Math.<span class="fn-name">sin</span>(n * Math.PI / <span class="num">180</span>),
+    cos:  () => Math.<span class="fn-name">cos</span>(n * Math.PI / <span class="num">180</span>),
+    tan:  () => Math.<span class="fn-name">tan</span>(n * Math.PI / <span class="num">180</span>),
+    log:  () => Math.<span class="fn-name">log10</span>(n),
+    sqrt: () => Math.<span class="fn-name">sqrt</span>(n),
+    pow2: () => n ** <span class="num">2</span>,
+    inv:  () => <span class="num">1</span> / n,
+  };
+  current = String(ops[op]());
+  <span class="fn-name">updateDisplay</span>();
+}</div>
+      </div>
+
+      <div class="code-block fade-in">
+        <div class="code-block-header">
+          <span class="code-block-title">calculator.js — keyboard support</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Keyboard event listener</span>
+document.<span class="fn-name">addEventListener</span>(<span class="str">'keydown'</span>, e => {
+  <span class="kw">if</span> (<span class="str">'0123456789.'</span>.<span class="fn-name">includes</span>(e.key))
+    <span class="fn-name">inputNum</span>(e.key);
+  <span class="kw">else if</span> (e.key === <span class="str">'Enter'</span>) <span class="fn-name">calculate</span>();
+  <span class="kw">else if</span> (e.key === <span class="str">'Backspace'</span>) <span class="fn-name">backspace</span>();
+  <span class="kw">else if</span> (e.key === <span class="str">'Escape'</span>) <span class="fn-name">clearCalc</span>();
+  <span class="kw">else if</span> ([<span class="str">'+'</span>,<span class="str">'-'</span>,<span class="str">'*'</span>,<span class="str">'/'</span>].<span class="fn-name">includes</span>(e.key))
+    <span class="fn-name">inputOp</span>(e.key);
+});</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section fade-in">
+    <div class="section-label">live data</div>
+    <h2 class="section-title">Calculation History</h2>
+    <div class="history-box">
+      <div class="history-header">
+        <span class="history-title">// session log — click any entry to restore</span>
+        <button class="history-clear" onclick="clearHistory()">CLEAR LOG</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty" id="historyEmpty">No calculations yet. Try the calculator above.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="fade-in">
+    <div class="section-label">what I built</div>
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⌨️</div>
+        <div class="feature-name">Keyboard Input</div>
+        <div class="feature-desc">Full keyboard support — type numbers and operators directly without clicking.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔬</div>
+        <div class="feature-name">Scientific Mode</div>
+        <div class="feature-desc">Toggle between standard and scientific with sin, cos, tan, log, square root and more.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-name">History Log</div>
+        <div class="feature-desc">Every calculation is saved to a session log. Click any entry to restore it.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <div class="feature-name">Ripple Effects</div>
+        <div class="feature-desc">CSS ripple animations on every button press for satisfying tactile feedback.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔢</div>
+        <div class="feature-name">Expression Display</div>
+        <div class="feature-desc">Live expression shown above the result so you always see what you're computing.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-name">Responsive Layout</div>
+        <div class="feature-desc">Works on any screen size — mobile, tablet, or desktop.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .page -->
+
+<footer>
+  built with <span>❤</span> by Sphumelele Sabela — 2025 &nbsp;|&nbsp; Project 01 / Calculator
+</footer>
+
+<script src="calculator.js"></script>
+</body>
+</html>

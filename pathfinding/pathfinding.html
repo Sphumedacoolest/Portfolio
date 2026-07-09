@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pathfinding Visualiser — Sphumelele Sabela</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pathfinding.css">
+</head>
+<body>
+
+
+<div id="cursor"></div>
+
+<nav>
+  <a href="../portfolio/sphumelele_portfolio.html" class="nav-logo">SS_dev</a>
+  <ul class="nav-links">
+    <li><a href="../portfolio/sphumelele_portfolio.html">portfolio</a></li>
+    <li><a href="../calculator/calculator.html">calculator</a></li>
+    <li><a href="../pathfinding/pathfinding.html">pathfinding</a></li>
+    <li><a href="../trivia/trivia.html">trivia</a></li>
+    <li><a href="../typing/typing.html">typing</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <a href="sphumelele_portfolio.html" class="back-link">← back to portfolio</a>
+
+  <div class="project-tag">project 02</div>
+  <h1 class="project-title">Pathfinding<span>.</span><br>Visualiser</h1>
+  <p class="project-desc">
+    An interactive visualiser that shows how pathfinding algorithms navigate through obstacles to find a route from start to end. Draw walls, move nodes, choose an algorithm, and watch it think in real time.
+  </p>
+  <div class="project-meta">
+    <span class="meta-tag">HTML</span>
+    <span class="meta-tag">CSS</span>
+    <span class="meta-tag">JavaScript</span>
+    <span class="meta-tag">Algorithms</span>
+    <span class="meta-tag">Data Structures</span>
+    <span class="meta-tag">BFS</span>
+    <span class="meta-tag">Dijkstra</span>
+    <span class="meta-tag">A*</span>
+  </div>
+
+  <!-- VISUALISER -->
+  <div class="vis-shell fade-in">
+    <div class="vis-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="vis-titlebar-name">pathfinder.js — interactive</span>
+      <span class="vis-titlebar-status" id="statusLabel">IDLE</span>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">ALGO</span>
+        <select class="ctrl-select" id="algoSelect" onchange="onAlgoChange()">
+          <option value="astar">A* (A-Star)</option>
+          <option value="dijkstra">Dijkstra's</option>
+          <option value="bfs">BFS</option>
+          <option value="dfs">DFS</option>
+        </select>
+      </div>
+      <div class="ctrl-divider"></div>
+      <div class="ctrl-group">
+        <span class="ctrl-label">MAZE</span>
+        <select class="ctrl-select" id="mazeSelect">
+          <option value="none">No maze</option>
+          <option value="random">Random walls</option>
+          <option value="recursive">Recursive division</option>
+        </select>
+      </div>
+      <button class="btn btn-outline" onclick="generateMaze()">Generate</button>
+      <div class="ctrl-divider"></div>
+      <button class="btn btn-primary" id="runBtn" onclick="runAlgo()">▶ Run</button>
+      <button class="btn btn-outline" onclick="clearPath()">Clear Path</button>
+      <button class="btn btn-danger" onclick="resetGrid()">Reset Grid</button>
+      <div class="speed-group">
+        <span class="ctrl-label">SPEED</span>
+        <input type="range" class="speed-slider" id="speedSlider" min="1" max="5" value="3">
+        <span class="ctrl-label" id="speedLabel">MED</span>
+      </div>
+    </div>
+
+    <div class="mode-hint" id="modeHint">
+      <span>Left-click</span> to draw walls &nbsp;·&nbsp; <span>Right-click</span> to erase &nbsp;·&nbsp; <span>Drag</span> the green/red nodes to move start/end
+    </div>
+
+    <div class="grid-container">
+      <div id="grid"></div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat"><span class="stat-label">nodes visited</span><span class="stat-val purple" id="statVisited">—</span></div>
+      <div class="stat"><span class="stat-label">path length</span><span class="stat-val green" id="statPath">—</span></div>
+      <div class="stat"><span class="stat-label">time (ms)</span><span class="stat-val" id="statTime">—</span></div>
+      <div class="stat"><span class="stat-label">algorithm</span><span class="stat-val" id="statAlgo">A*</span></div>
+      <div class="stat"><span class="stat-label">result</span><span class="stat-val" id="statResult">—</span></div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div><span class="legend-label">Start / Path</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div><span class="legend-label">End</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0d0d0d; border:1px solid #333"></div><span class="legend-label">Wall</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent2); opacity:0.7"></div><span class="legend-label">Explored</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1a2a3a"></div><span class="legend-label">Visited</span></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: algorithms + code -->
+  <div class="bottom-layout fade-in">
+    <div>
+      <div class="section-label">how it works</div>
+      <h2 class="section-title">Algorithms</h2>
+      <div class="algo-cards">
+        <div class="algo-card active-algo" id="card-astar">
+          <div class="algo-name">A* (A-Star) <span class="algo-badge badge-optimal">OPTIMAL</span></div>
+          <div class="algo-desc">Uses a heuristic (estimated distance to end) to prioritise promising paths. Guarantees the shortest route while exploring far fewer nodes than Dijkstra's.</div>
+        </div>
+        <div class="algo-card" id="card-dijkstra">
+          <div class="algo-name">Dijkstra's <span class="algo-badge badge-optimal">OPTIMAL</span></div>
+          <div class="algo-desc">Explores all neighbours by cost, expanding outward like a flood. Always finds the shortest path but visits more nodes than A*.</div>
+        </div>
+        <div class="algo-card" id="card-bfs">
+          <div class="algo-name">BFS <span class="algo-badge badge-optimal">OPTIMAL</span></div>
+          <div class="algo-desc">Breadth-First Search explores layer by layer. Optimal for unweighted grids. Uses a queue — first in, first out.</div>
+        </div>
+        <div class="algo-card" id="card-dfs">
+          <div class="algo-name">DFS <span class="algo-badge badge-no">NOT OPTIMAL</span></div>
+          <div class="algo-desc">Depth-First Search dives as deep as possible before backtracking. Fast but does not guarantee the shortest path. Uses a stack.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">the code</div>
+      <h2 class="section-title">Core Logic</h2>
+      <div class="code-block" style="margin-bottom:1rem;">
+        <div class="code-block-header">
+          <span class="code-block-title">astar.js — heuristic search</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Manhattan distance heuristic</span>
+<span class="kw">function</span> <span class="fn-name">heuristic</span>(a, b) {
+  <span class="kw">return</span> Math.<span class="fn-name">abs</span>(a.row - b.row)
+       + Math.<span class="fn-name">abs</span>(a.col - b.col);
+}
+
+<span class="kw">function</span> <span class="fn-name">aStar</span>(grid, start, end) {
+  <span class="kw">const</span> open = [start];
+  start.g = <span class="num">0</span>;
+  start.f = <span class="fn-name">heuristic</span>(start, end);
+
+  <span class="kw">while</span> (open.length) {
+    <span class="cm">// Pick node with lowest f score</span>
+    <span class="kw">const</span> cur = open.<span class="fn-name">sort</span>(
+      (a, b) => a.f - b.f
+    ).<span class="fn-name">shift</span>();
+
+    <span class="kw">if</span> (cur === end) <span class="kw">return</span> <span class="fn-name">tracePath</span>(end);
+
+    <span class="kw">for</span> (<span class="kw">const</span> nb <span class="kw">of</span> <span class="fn-name">getNeighbours</span>(cur)) {
+      <span class="kw">const</span> g = cur.g + <span class="num">1</span>;
+      <span class="kw">if</span> (g < nb.g) {
+        nb.parent = cur;
+        nb.g = g;
+        nb.f = g + <span class="fn-name">heuristic</span>(nb, end);
+        <span class="kw">if</span> (!open.<span class="fn-name">includes</span>(nb))
+          open.<span class="fn-name">push</span>(nb);
+      }
+    }
+  }
+  <span class="kw">return null</span>; <span class="cm">// no path found</span>
+}</div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-title">grid.js — path trace</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Walk back from end via parents</span>
+<span class="kw">function</span> <span class="fn-name">tracePath</span>(endNode) {
+  <span class="kw">const</span> path = [];
+  <span class="kw">let</span> cur = endNode;
+  <span class="kw">while</span> (cur) {
+    path.<span class="fn-name">unshift</span>(cur);
+    cur = cur.parent;
+  }
+  <span class="kw">return</span> path;
+}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="fade-in">
+    <div class="section-label">what I built</div>
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-name">4 Algorithms</div>
+        <div class="feature-desc">A*, Dijkstra's, BFS, and DFS — each with different strategies and tradeoffs visualised live.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖱️</div>
+        <div class="feature-name">Draw Walls</div>
+        <div class="feature-desc">Click and drag to paint obstacles. Right-click to erase. Drag the start/end nodes to reposition them.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌀</div>
+        <div class="feature-name">Maze Generator</div>
+        <div class="feature-desc">Auto-generate random walls or a recursive division maze for an instant challenge.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-name">Speed Control</div>
+        <div class="feature-desc">Adjust animation speed from slow step-through to instant — watch the algorithm think or race to the end.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-name">Live Stats</div>
+        <div class="feature-desc">Tracks nodes visited, path length, and execution time so you can compare algorithms directly.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-name">Animated Exploration</div>
+        <div class="feature-desc">Every visited cell animates individually so you can see the algorithm's frontier expanding in real time.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  built with <span>❤</span> by Sphumelele Sabela — 2025 &nbsp;|&nbsp; Project 02 / Pathfinding Visualiser
+</footer>
+
+<script src="pathfinding.js"></script>
+</body>
+</html>

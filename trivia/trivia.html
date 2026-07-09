@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trivia.exe — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="trivia.css">
+</head>
+<body>
+
+
+<div id="cursor"></div>
+
+<nav>
+  <a href="../portfolio/sphumelele_portfolio.html" class="nav-logo">SS_dev</a>
+  <ul class="nav-links">
+    <li><a href="../portfolio/sphumelele_portfolio.html">portfolio</a></li>
+    <li><a href="../calculator/calculator.html">calculator</a></li>
+    <li><a href="../pathfinding/pathfinding.html">pathfinding</a></li>
+    <li><a href="../trivia/trivia.html">trivia</a></li>
+    <li><a href="../typing/typing.html">typing</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <a href="../portfolio/sphumelele_portfolio.html" class="back-link">← back to portfolio</a>
+
+  <div class="project-tag">project 05</div>
+  <h1 class="project-title">Trivia<span>.</span><br>exe</h1>
+  <p class="project-desc">
+    A timed quiz game powered by the Open Trivia Database API. Pick a category and difficulty, race the clock, and track your score
+  </p>
+  <div class="project-meta">
+    <span class="meta-tag">HTML</span>
+    <span class="meta-tag">CSS</span>
+    <span class="meta-tag">JavaScript</span>
+    <span class="meta-tag">Open Trivia DB</span>
+    <span class="meta-tag">fetch()</span>
+    <span class="meta-tag">Async / Await</span>
+    <span class="meta-tag">No API Key</span>
+    <span class="meta-tag">Game Logic</span>
+  </div>
+
+  <!-- APP -->
+  <div class="app-shell fade-in">
+    <div class="app-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="app-titlebar-name">trivia.js — live</span>
+      <span class="app-titlebar-api">
+        <span class="api-dot"></span>
+        opentdb.com/api.php
+      </span>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="config-bar">
+      <select class="config-select" id="categorySelect">
+        <option value="">Any Category</option>
+        <option value="9">General Knowledge</option>
+        <option value="10">Books</option>
+        <option value="11">Film</option>
+        <option value="12">Music</option>
+        <option value="14">Television</option>
+        <option value="15">Video Games</option>
+        <option value="17">Science & Nature</option>
+        <option value="18">Computers</option>
+        <option value="19">Mathematics</option>
+        <option value="20">Mythology</option>
+        <option value="21">Sports</option>
+        <option value="22">Geography</option>
+        <option value="23">History</option>
+        <option value="27">Animals</option>
+      </select>
+      <select class="config-select" id="difficultySelect">
+        <option value="">Any Difficulty</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <select class="config-select" id="amountSelect">
+        <option value="5">5 Questions</option>
+        <option value="10" selected>10 Questions</option>
+        <option value="15">15 Questions</option>
+        <option value="20">20 Questions</option>
+      </select>
+      <button class="start-btn" id="startBtn" onclick="startGame()">START QUIZ →</button>
+    </div>
+
+    <!-- SCOREBOARD -->
+    <div class="scoreboard" id="scoreboard" style="display:none;">
+      <div class="score-cell">
+        <div class="score-label">Question</div>
+        <div class="score-val" id="scoreQ">0 / 0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-label">Score</div>
+        <div class="score-val green" id="scorePoints">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-label">Correct</div>
+        <div class="score-val green" id="scoreCorrect">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-label">Wrong</div>
+        <div class="score-val red" id="scoreWrong">0</div>
+      </div>
+      <div class="score-cell">
+        <div class="score-label">Timer</div>
+        <div class="score-val purple" id="scoreTimer">15</div>
+      </div>
+    </div>
+    <div class="timer-bar-wrap" id="timerBarWrap" style="display:none;">
+      <div class="timer-bar" id="timerBar"></div>
+    </div>
+
+    <!-- GAME AREA -->
+    <div class="game-area" id="gameArea">
+      <div class="screen" id="idleScreen">
+        <div class="screen-icon">🧠</div>
+        <div class="screen-title">Ready to play?</div>
+        <div class="screen-sub">Pick a category, difficulty, and number of questions above — then hit START to fetch your quiz from the Open Trivia DB</div>
+      </div>
+    </div>
+
+    <!-- API LOG -->
+    <div class="api-log">
+      <span class="api-log-label">GET</span>
+      <span class="api-log-url" id="apiLogUrl">https://opentdb.com/api.php</span>
+      <span class="api-log-status" id="apiLogStatus"><span class="status-loading">WAITING</span></span>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottom-layout fade-in">
+    <div>
+      <div class="section-label">how it works</div>
+      <h2 class="section-title">The API</h2>
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); margin-bottom:0.4rem;">Open Trivia DB</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.6;">A completely free, open trivia API with thousands of verified questions across 24 categories</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); margin-bottom:0.4rem;">HTML Entity Decoding</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.6;">The API returns HTML-encoded strings (e.g. <code style="color:var(--accent); font-size:12px;">&amp;amp;</code>). The app decodes them using a hidden <code style="color:var(--accent); font-size:12px;">textarea</code> trick — a classic JS pattern.</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); margin-bottom:0.4rem;">Fisher-Yates Shuffle</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.6;">Correct and incorrect answers are merged then shuffled using the Fisher-Yates algorithm so the right answer never appears in the same slot.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">the code</div>
+      <h2 class="section-title">Core Logic</h2>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-title">trivia.js — fetch questions</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Build URL from user config</span>
+<span class="kw">async function</span> <span class="fn-name">fetchQuestions</span>(amount, cat, diff) {
+  <span class="kw">let</span> url = <span class="str">`https://opentdb.com/api.php`</span>
+    + <span class="str">`?amount=${amount}&type=multiple`</span>;
+  <span class="kw">if</span> (cat)  url += <span class="str">`&category=${cat}`</span>;
+  <span class="kw">if</span> (diff) url += <span class="str">`&difficulty=${diff}`</span>;
+
+  <span class="kw">const</span> res  = <span class="kw">await</span> <span class="fn-name">fetch</span>(url);
+  <span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn-name">json</span>();
+  <span class="kw">return</span> data.results;
+}</div>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-title">trivia.js — shuffle answers</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Merge & shuffle so answer order</span>
+<span class="cm">// is random every question</span>
+<span class="kw">function</span> <span class="fn-name">shuffleAnswers</span>(q) {
+  <span class="kw">const</span> answers = [
+    ...q.incorrect_answers,
+    q.correct_answer
+  ];
+  <span class="cm">// Fisher-Yates shuffle</span>
+  <span class="kw">for</span> (<span class="kw">let</span> i = answers.length - <span class="num">1</span>; i > <span class="num">0</span>; i--) {
+    <span class="kw">const</span> j = Math.<span class="fn-name">floor</span>(Math.<span class="fn-name">random</span>() * (i+<span class="num">1</span>));
+    [answers[i], answers[j]] = [answers[j], answers[i]];
+  }
+  <span class="kw">return</span> answers;
+}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="fade-in">
+    <div class="section-label">what I built</div>
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <div class="feature-name">Uses API</div>
+        <div class="feature-desc">Fetches live questions from Open Trivia DB</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏱️</div>
+        <div class="feature-name">Countdown Timer</div>
+        <div class="feature-desc">15 seconds per question with a live progress bar. Auto-submits and penalises on timeout.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎛️</div>
+        <div class="feature-name">Configurable</div>
+        <div class="feature-desc">Choose from 14 categories, 3 difficulty levels, and 4 question counts before each game.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔀</div>
+        <div class="feature-name">Shuffled Answers</div>
+        <div class="feature-desc">Answers are merged and shuffled with Fisher-Yates so the correct answer never has a fixed position.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-name">Live Scoreboard</div>
+        <div class="feature-desc">Tracks score, correct answers, wrong answers, and remaining time in real time during the quiz.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏁</div>
+        <div class="feature-name">Results Screen</div>
+        <div class="feature-desc">End-of-game breakdown with final score, accuracy percentage, and a one-click replay button.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  built with <span>❤</span> by Josh — 2025 &nbsp;|&nbsp; Project 05 / Trivia.exe
+</footer>
+
+<!-- Hidden decoder -->
+<textarea id="htmlDecoder" style="display:none;"></textarea>
+
+<script src="trivia.js"></script>
+</body>
+</html>

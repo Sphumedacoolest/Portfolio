@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type.exe — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="typing.css">
+</head>
+<body>
+
+
+<div id="cursor"></div>
+
+<nav>
+  <a href="../portfolio/sphumelele_portfolio.html" class="nav-logo">SS_dev</a>
+  <ul class="nav-links">
+    <li><a href="../portfolio/sphumelele_portfolio.html">portfolio</a></li>
+    <li><a href="../calculator/calculator.html">calculator</a></li>
+    <li><a href="../pathfinding/pathfinding.html">pathfinding</a></li>
+    <li><a href="../trivia/trivia.html">trivia</a></li>
+    <li><a href="../typing/typing.html">typing</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <a href="../portfolio/sphumelele_portfolio.html" class="back-link">← back to portfolio</a>
+
+  <div class="project-tag">project 06</div>
+  <h1 class="project-title">Type<span>.</span><br>exe</h1>
+  <p class="project-desc">
+    A real-time typing speed test. Measures WPM, accuracy, and error count as you type,  character by character highlighting, a live countdown timer, and an end of round results breakdown.
+  </p>
+  <div class="project-meta">
+    <span class="meta-tag">HTML</span>
+    <span class="meta-tag">CSS</span>
+    <span class="meta-tag">JavaScript</span>
+    <span class="meta-tag">DOM Manipulation</span>
+    <span class="meta-tag">setInterval</span>
+    <span class="meta-tag">WPM Algorithm</span>
+  </div>
+
+  <!-- APP -->
+  <div class="app-shell fade-in">
+    <div class="app-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="app-titlebar-name">typing.js — live</span>
+      <div class="app-titlebar-right">
+        MODE: <span id="modeLabel">30s</span>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="config-bar">
+      <span class="config-label">TIME</span>
+      <button class="mode-btn" data-time="15">15s</button>
+      <button class="mode-btn active" data-time="30">30s</button>
+      <button class="mode-btn" data-time="60">60s</button>
+      <button class="mode-btn" data-time="120">120s</button>
+      <div class="divider"></div>
+      <span class="config-label">WORDS</span>
+      <button class="mode-btn active" data-words="common">Common</button>
+      <button class="mode-btn" data-words="code">Code</button>
+      <button class="mode-btn" data-words="quotes">Quotes</button>
+      <button class="reset-btn" onclick="resetTest()">↺ RESET</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat-cell">
+        <div class="stat-label">WPM</div>
+        <div class="stat-val green" id="statWpm">—</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Accuracy</div>
+        <div class="stat-val yellow" id="statAcc">—</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Errors</div>
+        <div class="stat-val red" id="statErr">0</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Time Left</div>
+        <div class="stat-val purple" id="statTime">30</div>
+      </div>
+    </div>
+    <div class="timer-track">
+      <div class="timer-fill" id="timerFill"></div>
+    </div>
+
+    <!-- TYPING ZONE -->
+    <div class="typing-zone">
+      <div class="typing-zone-wrap">
+        <div class="word-display" id="wordDisplay"></div>
+        <div class="idle-overlay" id="idleOverlay">
+          <div class="idle-icon">⌨️</div>
+          <div class="idle-title">Start typing to begin</div>
+          <div class="idle-sub">The timer starts on your first keystroke</div>
+        </div>
+      </div>
+      <div class="input-row">
+        <input type="text" id="typeInput" placeholder="start typing here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <span class="input-hint">SPACE = next word</span>
+      </div>
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div class="results-panel" id="resultsPanel">
+      <div class="results-inner">
+        <div class="result-cell">
+          <div class="result-label">WPM</div>
+          <div class="result-val green" id="resWpm">0</div>
+          <div class="result-unit">words / min</div>
+        </div>
+        <div class="result-cell">
+          <div class="result-label">Accuracy</div>
+          <div class="result-val yellow" id="resAcc">0%</div>
+          <div class="result-unit">correct chars</div>
+        </div>
+        <div class="result-cell">
+          <div class="result-label">Errors</div>
+          <div class="result-val red" id="resErr">0</div>
+          <div class="result-unit">wrong chars</div>
+        </div>
+        <div class="result-cell">
+          <div class="result-label">Raw WPM</div>
+          <div class="result-val purple" id="resRaw">0</div>
+          <div class="result-unit">unpenalised</div>
+        </div>
+      </div>
+      <div class="results-actions">
+        <div class="results-msg" id="resultsMsg"></div>
+        <button class="retry-btn" onclick="resetTest()">TRY AGAIN →</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottom-layout fade-in">
+    <div>
+      <div class="section-label">how it works</div>
+      <h2 class="section-title">The Logic</h2>
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); margin-bottom:0.4rem;">WPM Calculation</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.6;">WPM is calculated as <code style="color:var(--accent); font-size:12px;">(correct chars / 5) / minutes</code>. Dividing by 5 is the industry standard — it normalises for word length so "cat" and "extraordinary" count fairly.</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); margin-bottom:0.4rem;">Live DOM Rendering</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.6;">Every character is a separate <code style="color:var(--accent); font-size:12px;">&lt;span&gt;</code> element. On each keystroke the app compares typed input to the target word and toggles <code style="color:var(--accent); font-size:12px;">.correct</code> / <code style="color:var(--accent); font-size:12px;">.wrong</code> classes in real time.</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1.25rem;">
+          <div style="font-family:var(--mono); font-size:12px; font-weight:700; color:var(--text); margin-bottom:0.4rem;">No Libraries</div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.6;">Everything — timer, rendering, WPM math, cursor tracking is pure vanilla JavaScript.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">the code</div>
+      <h2 class="section-title">Core Logic</h2>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-title">typing.js — WPM formula</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Industry-standard WPM formula</span>
+<span class="kw">function</span> <span class="fn-name">calcWpm</span>(correctChars, seconds) {
+  <span class="kw">const</span> minutes = seconds / <span class="num">60</span>;
+  <span class="cm">// Divide by 5 = average word length</span>
+  <span class="kw">return</span> Math.<span class="fn-name">round</span>(
+    (correctChars / <span class="num">5</span>) / minutes
+  );
+}
+
+<span class="cm">// Accuracy = correct / total typed</span>
+<span class="kw">function</span> <span class="fn-name">calcAccuracy</span>(correct, total) {
+  <span class="kw">if</span> (total === <span class="num">0</span>) <span class="kw">return</span> <span class="num">100</span>;
+  <span class="kw">return</span> Math.<span class="fn-name">round</span>((correct / total) * <span class="num">100</span>);
+}</div>
+      </div>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-block-title">typing.js — char render</span>
+          <span class="code-block-lang">JS</span>
+        </div>
+        <div class="code-content"><span class="cm">// Render each char as its own span</span>
+<span class="kw">function</span> <span class="fn-name">renderWords</span>(words) {
+  display.innerHTML = words
+    .<span class="fn-name">map</span>((word, wi) => <span class="str">`
+      &lt;span class="word" id="w${wi}"&gt;
+        ${[...word].<span class="fn-name">map</span>((ch, ci) =>
+          <span class="str">`&lt;span class="char pending"
+             id="c${wi}-${ci}"&gt;${ch}&lt;/span&gt;`</span>
+        ).<span class="fn-name">join</span>(<span class="str">''</span>)}
+      &lt;/span&gt;`</span>
+    ).<span class="fn-name">join</span>(<span class="str">''</span>);
+}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="fade-in">
+    <div class="section-label">what I built</div>
+    <h2 class="section-title">Features</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⌨️</div>
+        <div class="feature-name">Live Highlighting</div>
+        <div class="feature-desc">Each character updates green or red in real time as you type — character by character, not word by word.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-name">WPM + Accuracy</div>
+        <div class="feature-desc">Live WPM calculated using the industry-standard chars/5 formula. Accuracy tracks correct vs total keystrokes.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏱️</div>
+        <div class="feature-name">4 Timer Modes</div>
+        <div class="feature-desc">Choose 15, 30, 60, or 120 second rounds. Timer only starts on your first keystroke.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <div class="feature-name">3 Word Sets</div>
+        <div class="feature-desc">Common English words, programming keywords, or famous quotes — different challenges for different goals.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏁</div>
+        <div class="feature-name">Results Breakdown</div>
+        <div class="feature-desc">End-of-round panel shows WPM, accuracy, error count, and raw WPM (unpenalised) side by side.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-name">No Dependencies</div>
+        <div class="feature-desc">Pure JavaScript : no frameworks, no npm, no build step. Just HTML, CSS, and JavaScript from.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  built with <span>❤</span> by Sphumelele Sabela — 2026 &nbsp;|&nbsp; Project 06 / Type.exe
+</footer>
+
+<script src="typing.js"></script>
+</body>
+</html>
